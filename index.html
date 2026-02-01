@@ -1,47 +1,107 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-  <title>Will You Be My Valentine?</title>
+<script>
+  const noBtn = document.getElementById("noBtn");
+  let isTouching = false;
 
-  <!-- Social preview -->
-  <meta property="og:title" content="Will You Be My Valentine? 💖">
-  <meta property="og:description" content="A little surprise just for you 💕">
-  <meta property="og:type" content="website">
+  function moveNo(e) {
+    if (e && e.type === "touchstart") isTouching = true;
 
-  <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
+    const padding = 16;
+    const btnW = noBtn.offsetWidth;
+    const btnH = noBtn.offsetHeight;
+
+    const maxX = window.innerWidth - btnW - padding;
+    const maxY = window.innerHeight - btnH - padding;
+
+    const x = Math.max(padding, Math.random() * maxX);
+    const y = Math.max(padding, Math.random() * maxY);
+
+    noBtn.style.position = "fixed";
+    noBtn.style.transition = "transform 0.15s ease";
+    noBtn.style.transform = `translate(${x}px, ${y}px)`;
+  }
+
+  // Desktop
+  noBtn.addEventListener("mouseenter", moveNo);
+
+  // Mobile
+  noBtn.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    moveNo(e);
+  }, { passive: false });
+
+  // Click safety
+  noBtn.addEventListener("click", () => {
+    if (isTouching) {
+      isTouching = false;
+      return;
     }
+    showNo();
+  });
 
-    body {
-      margin: 0;
-      padding: 20px;
-      font-family: 'Trebuchet MS', Arial, sans-serif;
-      background: linear-gradient(135deg, #ff758c, #ff7eb3);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
+  function showNo() {
+    document.getElementById("ask").style.display = "none";
+    document.getElementById("noScreen").style.display = "block";
+    burst(40);
+  }
 
-    canvas {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 1;
-    }
+  function retry() {
+    document.getElementById("noScreen").style.display = "none";
+    document.getElementById("ask").style.display = "block";
+    burst(30);
+  }
 
-    .card {
-      background: #fff;
-      padding: 28px 22px;
-      border-radius: 22px;
-      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-      text-align: center;
-      max-width: 380px;
-      width: 100%;
-      position: relative;
+  function yes() {
+    document.getElementById("ask").style.display = "none";
+    document.getElementById("noScreen").style.display = "none";
+    document.getElementById("yesScreen").style.display = "block";
+    burst(120);
+  }
+
+  /* ❤️ HEART CONFETTI */
+  const canvas = document.getElementById("confetti");
+  const ctx = canvas.getContext("2d");
+  let hearts = [];
+
+  function resize() {
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+  }
+  resize();
+  addEventListener("resize", resize);
+
+  function Heart() {
+    this.x = Math.random() * canvas.width;
+    this.y = canvas.height + 20;
+    this.size = 12 + Math.random() * 16;
+    this.speed = 1.5 + Math.random() * 2;
+    this.alpha = 1;
+  }
+
+  function draw(h) {
+    ctx.globalAlpha = h.alpha;
+    ctx.fillStyle = "#e63946";
+    ctx.beginPath();
+    ctx.moveTo(h.x, h.y);
+    ctx.bezierCurveTo(h.x + h.size, h.y - h.size, h.x + h.size * 2, h.y + h.size / 3, h.x, h.y + h.size);
+    ctx.bezierCurveTo(h.x - h.size * 2, h.y + h.size / 3, h.x - h.size, h.y - h.size, h.x, h.y);
+    ctx.fill();
+  }
+
+  function burst(n) {
+    for (let i = 0; i < n; i++) hearts.push(new Heart());
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    hearts.forEach(h => {
+      h.y -= h.speed;
+      h.alpha -= 0.012;
+      draw(h);
+    });
+    hearts = hearts.filter(h => h.alpha > 0);
+    requestAnimationFrame(animate);
+  }
+  animate();
+</script>
+
 
