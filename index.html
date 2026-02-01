@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Will You Be My Valentine?</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Trebuchet MS', Arial, sans-serif;
+      background: linear-gradient(135deg, #ff758c, #ff7eb3);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .card {
+      background: #fff;
+      padding: 40px;
+      border-radius: 25px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+      text-align: center;
+      max-width: 440px;
+      width: 90%;
+      position: relative;
+      z-index: 2;
+      animation: popIn 0.8s ease;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.6); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    h1 { color: #e63946; font-size: 32px; }
+    p { font-size: 18px; color: #444; }
+
+    .buttons {
+      position: relative;
+      height: 70px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    button {
+      padding: 14px 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+    }
+
+    .yes { background: #e63946; color: #fff; }
+    .no {
+      background: #ffd6da;
+      position: absolute;
+    }
+
+    .hearts {
+      font-size: 36px;
+      margin-bottom: 15px;
+      animation: float 2s infinite;
+    }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="confetti"></canvas>
+
+<div class="card" id="ask">
+  <div class="hearts">💘 💖 💘</div>
+  <h1>Hey Teena Mariya Jose!</h1>
+  <p>Will you be my Valentine? 💕</p>
+
+  <div class="buttons">
+    <button class="yes" onclick="yes()">YES 😍</button>
+    <button class="no" id="noBtn">NO 😅</button>
+  </div>
+</div>
+
+<div class="card" id="noScreen" style="display:none">
+  <div class="hearts">😅 💔 😅</div>
+  <h1>You can’t do that</h1>
+  <p>This page only accepts YES 💖</p>
+  <button class="yes" onclick="retry()">Retry 🔁</button>
+</div>
+
+<div class="card" id="yesScreen" style="display:none">
+  <div class="hearts">🎉 💖 🎉</div>
+  <h1>YAYYY!!!</h1>
+  <p>You made my heart very happy 💕</p>
+</div>
+
+<script>
+  const noBtn = document.getElementById("noBtn");
+
+  noBtn.addEventListener("mouseenter", moveNo);
+  noBtn.addEventListener("click", showNo);
+
+  function moveNo() {
+    noBtn.style.transform =
+      `translate(${Math.random()*300-150}px, ${Math.random()*160-80}px)`;
+  }
+
+  function showNo() {
+    document.getElementById("ask").style.display = "none";
+    document.getElementById("noScreen").style.display = "block";
+    burst(50);
+  }
+
+  function retry() {
+    document.getElementById("noScreen").style.display = "none";
+    document.getElementById("ask").style.display = "block";
+    burst(40);
+  }
+
+  function yes() {
+    document.getElementById("ask").style.display = "none";
+    document.getElementById("noScreen").style.display = "none";
+    document.getElementById("yesScreen").style.display = "block";
+    burst(150);
+  }
+
+  // ❤️ Heart confetti
+  const canvas = document.getElementById("confetti");
+  const ctx = canvas.getContext("2d");
+  let hearts = [];
+
+  function resize() {
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+  }
+  resize();
+  addEventListener("resize", resize);
+
+  function Heart() {
+    this.x = Math.random()*canvas.width;
+    this.y = canvas.height;
+    this.size = 14 + Math.random()*18;
+    this.speed = 2 + Math.random()*2;
+    this.alpha = 1;
+  }
+
+  function draw(h) {
+    ctx.globalAlpha = h.alpha;
+    ctx.fillStyle = "#e63946";
+    ctx.beginPath();
+    ctx.moveTo(h.x, h.y);
+    ctx.bezierCurveTo(h.x+h.size, h.y-h.size, h.x+h.size*2, h.y+h.size/3, h.x, h.y+h.size);
+    ctx.bezierCurveTo(h.x-h.size*2, h.y+h.size/3, h.x-h.size, h.y-h.size, h.x, h.y);
+    ctx.fill();
+  }
+
+  function burst(n) {
+    for(let i=0;i<n;i++) hearts.push(new Heart());
+  }
+
+  function animate() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    hearts.forEach(h=>{
+      h.y -= h.speed;
+      h.alpha -= 0.01;
+      draw(h);
+    });
+    hearts = hearts.filter(h=>h.alpha>0);
+    requestAnimationFrame(animate);
+  }
+  animate();
+</script>
+
+</body>
+</html>
